@@ -13,9 +13,13 @@ namespace GenPdf
 {
     public class Startup
     {
+        static PDFPrinter _pDFPrinter;
+        static public PDFPrinter PDFPrinter { get => Startup._pDFPrinter; }
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            _pDFPrinter = new PDFPrinter();
         }
 
         public IConfiguration Configuration { get; }
