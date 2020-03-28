@@ -80,16 +80,11 @@ namespace GenPdf
             return RedirectToAction(nameof(PDFView));
         }
 
-        // GET: Printer/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
+       
         // POST: Printer/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult EditView(int id, IFormCollection collection)
         {
             try
             {
@@ -101,6 +96,11 @@ namespace GenPdf
             {
                 return View();
             }
+        }
+        // GET: Printer/Edit/5
+        public ActionResult Edit(int id)
+        {
+            return View();
         }
 
         // GET: Printer/Delete/5
