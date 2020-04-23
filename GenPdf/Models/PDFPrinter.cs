@@ -12,7 +12,9 @@ namespace GenPdf
 {
     public class PDFPrinter
     {
-       // static int _counter;
+        string _baseDirectory;
+        string _rootDir;
+        List<SelectListItem> _files = new List<SelectListItem>();
         public int ID = 0;
         static string _lastFilePath;
         string _directory;
@@ -27,6 +29,8 @@ namespace GenPdf
         public string RectangleColor { get; set; }
         public static string LastFilePath { get => _lastFilePath; }
         public List<SelectListItem> ColorList { get => _colorList; }
+        public string SelectedDrawing { get; set; }
+        public List<SelectListItem> Files { get => _files;  }
 
         List<SelectListItem> _colorList = new List<SelectListItem>
                           {
@@ -44,25 +48,55 @@ namespace GenPdf
                              new SelectListItem{ Text="Silver", Value = "11" },
                              new SelectListItem{ Text="Gold", Value = "12" },
                           };
+
+        internal void SelecFile(string guidOfFile)
+        {
+            MakeLastFile(guidOfFile);
+        }
+        private void MakeLastFile(string documentName, bool createDir=false)
+        {
+            _directory = _rootDir + documentName;
+            if (createDir == true)
+            {
+                Directory.CreateDirectory(_directory);
+            }
+            _lastFilePath = Path.Combine(_directory, ID + _file);
+        }
+
         public PDFPrinter()
         {
-           // _counter++;
+            _baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
+            _baseDirectory = _baseDirectory.Remove(0, "file:\\".Length);
+            _rootDir= _baseDirectory + "\\" + _printerName + "\\";
             _sentence = "Curiosity killed the cat";
             TextColor = "Green";
             RectangleColor = "Yellow";
+            FillFiles();
         }
-      
+
+        private void FillFiles()
+        {
+            var roots=Directory.EnumerateDirectories(_rootDir);
+            int index = 0;
+            foreach(var root in roots)
+            {
+                var file=Directory.EnumerateFiles(root);
+                int id = int.Parse(Path.GetFileNameWithoutExtension(file.ElementAt(0)));
+                string documentName = Path.GetFileNameWithoutExtension(root);
+                _files.Add(new SelectListItem(index.ToString(),documentName));
+                index++;
+            }
+        }
+
         public void Print()
         {
             SetColors();
             SetText();
-            
+
             string documentName = Guid.NewGuid().ToString();
-            string baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
-            baseDirectory = baseDirectory.Remove(0, "file:\\".Length);
-            _directory = baseDirectory + "\\" + _printerName + "\\" + documentName;
-            System.IO.Directory.CreateDirectory(_directory);
-            _lastFilePath = Path.Combine(_directory, ID+_file);
+            _files.Add(new SelectListItem(_files.Count.ToString(), documentName));
+            MakeLastFile(documentName,true);
+
             PrintDocument printDocument = new PrintDocument()
             {
                 DocumentName = documentName,
@@ -85,6 +119,7 @@ namespace GenPdf
             ID++;
         }
 
+      
         private void SetText()
         {
             string timeStamp = DateTime.UtcNow.Subtract(new DateTime()).ToString();

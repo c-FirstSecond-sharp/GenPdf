@@ -43,11 +43,21 @@ namespace GenPdf
         }
 
         // GET: Printer/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(IFormCollection collection)//int id
         {
-            return View();
+            string guidOfFile;
+            if (collection.Count==0)
+            {
+                 guidOfFile=Startup.PDFPrinter.Files[0].Value;
+            }
+            else
+            {
+                 guidOfFile = collection.First().Value;
+            }
+            Startup.PDFPrinter.SelecFile(guidOfFile); 
+            return View(Startup.PDFPrinter);
         }
-
+        
         // GET: Printer/Create
         public ActionResult Create()
         {
@@ -62,7 +72,7 @@ namespace GenPdf
             try
             {
                 
-                return SetupAndPrint(collection);
+                return SetupAndPrint(collection, nameof(PDFView));
                 //return RedirectToAction(nameof(V));
             }
             catch (Exception ex)
@@ -71,13 +81,13 @@ namespace GenPdf
             }
         }
 
-        private  ActionResult SetupAndPrint(IFormCollection collection)
+        private  ActionResult SetupAndPrint(IFormCollection collection, string viewName)
         {
             Startup.PDFPrinter.Sentence = collection[nameof(Startup.PDFPrinter.Sentence)];
             Startup.PDFPrinter.TextColor = Startup.PDFPrinter.ColorList.ElementAt(int.Parse(collection[nameof(Startup.PDFPrinter.TextColor)])).Text;
             Startup.PDFPrinter.RectangleColor = Startup.PDFPrinter.ColorList.ElementAt(int.Parse(collection[nameof(Startup.PDFPrinter.RectangleColor)])).Text;
             Startup.PDFPrinter.Print();
-            return RedirectToAction(nameof(PDFView));
+            return RedirectToAction(viewName);//nameof(PDFView)
         }
 
        
@@ -89,7 +99,7 @@ namespace GenPdf
             try
             {
                 // TODO: Add update logic here
-               return SetupAndPrint(collection);
+               return SetupAndPrint(collection, nameof(EditView));
                 //return RedirectToAction(nameof(V));
             }
             catch
@@ -98,9 +108,9 @@ namespace GenPdf
             }
         }
         // GET: Printer/Edit/5
-        public ActionResult Edit(int id)
+        public ActionResult EditView(int id)
         {
-            return View();
+            return View(Startup.PDFPrinter);
         }
 
         // GET: Printer/Delete/5
