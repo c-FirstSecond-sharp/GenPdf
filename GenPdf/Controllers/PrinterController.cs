@@ -72,7 +72,7 @@ namespace GenPdf
             try
             {
                 
-                return SetupAndPrint(collection, nameof(PDFView));
+                return SetupAndPrint(collection, nameof(PDFView),null);
                 //return RedirectToAction(nameof(V));
             }
             catch (Exception ex)
@@ -81,12 +81,12 @@ namespace GenPdf
             }
         }
 
-        private  ActionResult SetupAndPrint(IFormCollection collection, string viewName)
+        private  ActionResult SetupAndPrint(IFormCollection collection, string viewName, string documentName)
         {
             Startup.PDFPrinter.Sentence = collection[nameof(Startup.PDFPrinter.Sentence)];
             Startup.PDFPrinter.TextColor = Startup.PDFPrinter.ColorList.ElementAt(int.Parse(collection[nameof(Startup.PDFPrinter.TextColor)])).Text;
             Startup.PDFPrinter.RectangleColor = Startup.PDFPrinter.ColorList.ElementAt(int.Parse(collection[nameof(Startup.PDFPrinter.RectangleColor)])).Text;
-            Startup.PDFPrinter.Print();
+            Startup.PDFPrinter.Print(documentName);
             return RedirectToAction(viewName);//nameof(PDFView)
         }
 
@@ -98,8 +98,9 @@ namespace GenPdf
         {
             try
             {
-                // TODO: Add update logic here
-               return SetupAndPrint(collection, nameof(EditView));
+                string guidOfFile = Startup.PDFPrinter.Files.Last().Value;
+                Startup.PDFPrinter.SelecFile(guidOfFile);
+                return SetupAndPrint(collection, nameof(EditView), guidOfFile);
                 //return RedirectToAction(nameof(V));
             }
             catch
@@ -110,6 +111,8 @@ namespace GenPdf
         // GET: Printer/Edit/5
         public ActionResult EditView(int id)
         {
+            string guidOfFile = Startup.PDFPrinter.Files.Last().Value;
+            Startup.PDFPrinter.SelecFile(guidOfFile);
             return View(Startup.PDFPrinter);
         }
 

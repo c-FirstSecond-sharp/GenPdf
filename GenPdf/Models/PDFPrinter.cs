@@ -15,7 +15,7 @@ namespace GenPdf
         string _baseDirectory;
         string _rootDir;
         List<SelectListItem> _files = new List<SelectListItem>();
-        public int ID = 0;
+       // public int ID = 0;
         static string _lastFilePath;
         string _directory;
         string _file = ".pdf";
@@ -60,7 +60,7 @@ namespace GenPdf
             {
                 Directory.CreateDirectory(_directory);
             }
-            _lastFilePath = Path.Combine(_directory, ID + _file);
+            _lastFilePath = Path.Combine(_directory, 0 + _file);
         }
 
         public PDFPrinter()
@@ -88,35 +88,40 @@ namespace GenPdf
             }
         }
 
-        public void Print()
+        public void Print(string documentName)
         {
+
             SetColors();
             SetText();
-
-            string documentName = Guid.NewGuid().ToString();
-            _files.Add(new SelectListItem(_files.Count.ToString(), documentName));
-            MakeLastFile(documentName,true);
-
-            PrintDocument printDocument = new PrintDocument()
+            if (string.IsNullOrEmpty(documentName) == true)
             {
-                DocumentName = documentName,
-                PrinterSettings = new PrinterSettings()
+
+                documentName = Guid.NewGuid().ToString();
+                _files.Add(new SelectListItem(_files.Count.ToString(), documentName));
+                MakeLastFile(documentName, true);
+
+            }
+                PrintDocument printDocument = new PrintDocument()
                 {
-                    // set the printer to 'Microsoft Print to PDF'
-                    PrinterName = _printerName,
+                    DocumentName = documentName,
+                    PrinterSettings = new PrinterSettings()
+                    {
+                        // set the printer to 'Microsoft Print to PDF'
+                        PrinterName = _printerName,
 
-                    // tell the object this document will print to file
-                    PrintToFile = true,
+                        // tell the object this document will print to file
+                        PrintToFile = true,
 
-                    // set the filename to whatever you like (full path)
-                    PrintFileName = _lastFilePath// Path.Combine(_directory, _file)
-                }
-            };
+                        // set the filename to whatever you like (full path)
+                        PrintFileName = _lastFilePath// Path.Combine(_directory, _file)
+                    }
+                };
 
-            Console.WriteLine(printDocument.PrinterSettings.PrintFileName);
-            printDocument.PrintPage += new PrintPageEventHandler(PrintDocument_PrintPage);
-            printDocument.Print();
-            ID++;
+                Console.WriteLine(printDocument.PrinterSettings.PrintFileName);
+                printDocument.PrintPage += new PrintPageEventHandler(PrintDocument_PrintPage);
+                printDocument.Print();
+               // ID++;
+            
         }
 
       
