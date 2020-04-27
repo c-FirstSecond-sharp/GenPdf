@@ -43,11 +43,21 @@ namespace GenPdf
         }
 
         // GET: Printer/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(IFormCollection collection)//int id
         {
-            return View();
+            string guidOfFile;
+            if (collection.Count==0)
+            {
+                 guidOfFile=Startup.PDFPrinter.Files[0].Value;
+            }
+            else
+            {
+                 guidOfFile = collection.First().Value;
+            }
+            Startup.PDFPrinter.SelecFile(guidOfFile); 
+            return View(Startup.PDFPrinter);
         }
-
+        
         // GET: Printer/Create
         public ActionResult Create()
         {
@@ -62,7 +72,7 @@ namespace GenPdf
             try
             {
                 
-                return SetupAndPrint(collection);
+                return SetupAndPrint(collection, nameof(PDFView),null);
                 //return RedirectToAction(nameof(V));
             }
             catch (Exception ex)
@@ -71,36 +81,39 @@ namespace GenPdf
             }
         }
 
-        private  ActionResult SetupAndPrint(IFormCollection collection)
+        private  ActionResult SetupAndPrint(IFormCollection collection, string viewName, string documentName)
         {
             Startup.PDFPrinter.Sentence = collection[nameof(Startup.PDFPrinter.Sentence)];
             Startup.PDFPrinter.TextColor = Startup.PDFPrinter.ColorList.ElementAt(int.Parse(collection[nameof(Startup.PDFPrinter.TextColor)])).Text;
             Startup.PDFPrinter.RectangleColor = Startup.PDFPrinter.ColorList.ElementAt(int.Parse(collection[nameof(Startup.PDFPrinter.RectangleColor)])).Text;
-            Startup.PDFPrinter.Print();
-            return RedirectToAction(nameof(PDFView));
+            Startup.PDFPrinter.Print(documentName);
+            return RedirectToAction(viewName);//nameof(PDFView)
         }
 
-        // GET: Printer/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
+       
         // POST: Printer/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult EditView(int id, IFormCollection collection)
         {
             try
             {
-                // TODO: Add update logic here
-               return SetupAndPrint(collection);
+                string guidOfFile = Startup.PDFPrinter.Files.Last().Value;
+                Startup.PDFPrinter.SelecFile(guidOfFile);
+                return SetupAndPrint(collection, nameof(EditView), guidOfFile);
                 //return RedirectToAction(nameof(V));
             }
             catch
             {
                 return View();
             }
+        }
+        // GET: Printer/Edit/5
+        public ActionResult EditView(int id)
+        {
+            string guidOfFile = Startup.PDFPrinter.Files.Last().Value;
+            Startup.PDFPrinter.SelecFile(guidOfFile);
+            return View(Startup.PDFPrinter);
         }
 
         // GET: Printer/Delete/5
